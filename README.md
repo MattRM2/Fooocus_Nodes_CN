@@ -1,6 +1,6 @@
 ﻿# ComfyUI Fooocus Nodes
 
-# This is a fork of Seedsa Fooocus Nodes (https://github.com/Seedsa/Fooocus_Nodes.git) with some updates 
+This is a fork of Seedsa Fooocus Nodes (https://github.com/Seedsa/Fooocus_Nodes.git) with some updates 
 
 # Installation
 
@@ -33,6 +33,7 @@ use_model_cache = True
 - [x] Fooocus Canny&CPDS
 - [x] Fooocus Styles&PromptExpansion
 - [ ] Fooocus Styles weight (WIP)
+- [ ] Add Depth and OpenPose controlNet
 
 # Workflows
 
