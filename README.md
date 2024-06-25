@@ -33,7 +33,7 @@ use_model_cache = True
 - [x] Fooocus Canny&CPDS
 - [x] Fooocus Styles&PromptExpansion
 - [x] Fooocus DeftailerFix
-- [ ] Fooocus Styles weight (WIP)
+- [X] Fooocus Styles weight
 
 # Workflows
 
