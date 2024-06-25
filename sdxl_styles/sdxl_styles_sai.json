@@ -11,7 +11,7 @@
     },
     {
         "name": "sai-anime",
-        "prompt": "anime artwork {prompt} . anime style, key visual, vibrant, studio anime, highly detailed",
+        "prompt": "(anime artwork:{weight}) {prompt} . anime style, key visual, vibrant, studio anime, highly detailed",
         "negative_prompt": "photo, deformed, black and white, realism, disfigured, low contrast"
     },
     {

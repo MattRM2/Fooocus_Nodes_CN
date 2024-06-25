@@ -1,9 +1,11 @@
 ﻿# ComfyUI Fooocus Nodes
 
+This is a fork of Seedsa Fooocus Nodes (https://github.com/Seedsa/Fooocus_Nodes.git) with some updates 
+
 # Installation
 
 1. Clone the repository:
-   `git clone https://github.com/Seedsa/Fooocus_Nodes.git`  
+   `git clone https://github.com/MattRM2/Fooocus_Nodes_CN.git`  
    to your ComfyUI `custom_nodes` directory
 
 # Update
@@ -31,6 +33,7 @@ use_model_cache = True
 - [x] Fooocus Canny&CPDS
 - [x] Fooocus Styles&PromptExpansion
 - [x] Fooocus DeftailerFix
+- [ ] Fooocus Styles weight (WIP)
 
 # Workflows
 

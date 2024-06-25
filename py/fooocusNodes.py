@@ -205,6 +205,7 @@ class FooocusPreKSampler:
                 "adm_scaler_end": ("FLOAT", {"default": 0.3, "min": 0.0, "max": 1.0, "step": 0.1},),
                 "controlnet_softness": ("FLOAT", {"default": 0.25, "min": 0.0, "max": 1.0, "step": 0.01},),
                 "freeu_enabled": ("BOOLEAN", {"default": False},),
+                "styles_weight": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 5.0, "step": 0.05},),
             },
             "optional": {
                 "image_to_latent": ("IMAGE",),
@@ -260,6 +261,7 @@ class FooocusPreKSampler:
         refiner_swap_method = pipe["refiner_swap_method"]
         controlnet_softness = kwargs.pop("controlnet_softness")
         freeu_enabled = kwargs.pop("freeu_enabled")
+        styles_weight = kwargs.get("styles_weight")
 
         base_model_additional_loras = []
 
@@ -458,7 +460,7 @@ class FooocusPreKSampler:
                     for s in style_selections:
                         if s == fooocus_expansion:
                             continue
-                        p, n = apply_style(s, positive=task_prompt)
+                        p, n = apply_style(s, positive=task_prompt, weight=str(styles_weight))
                         positive_basic_workloads = positive_basic_workloads + p
                         negative_basic_workloads = negative_basic_workloads + n
                 else:

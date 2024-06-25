@@ -54,9 +54,10 @@ fooocus_expansion = "Fooocus V2"
 legal_style_names = [fooocus_expansion] + style_keys
 
 
-def apply_style(style, positive):
+def apply_style(style, positive, weight):
     p, n = styles[style]
-    return p.replace('{prompt}', positive).splitlines(), n.splitlines()
+    # Add Style Weight
+    return (p.replace('{prompt}', positive)).replace('{weight}', weight).splitlines(),n.splitlines()
 
 
 def apply_wildcards(wildcard_text, rng, i, read_wildcards_in_order):
