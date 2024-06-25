@@ -1,6 +1,6 @@
 import torch
 
-import comfy.model_management as model_management
+from ldm_patched.modules import model_management
 from ldm_patched.ldm.models.autoencoder import AutoencoderKL, AutoencodingEngine
 import yaml
 

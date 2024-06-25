@@ -1,8 +1,8 @@
 import os
 import sys
 
+sys.path.append(os.path.dirname(__file__))
 modules_path = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(modules_path)
 from modules.patch import PatchSettings, patch_settings, patch_all
 patch_all()
 import numpy as np
@@ -116,8 +116,8 @@ class FooocusLoader:
                 "refiner_model_name": (["None"] + folder_paths.get_filename_list("checkpoints"), {"default": "None"},),
                 "refiner_switch": ("FLOAT", {"default": 0.5, "min": 0.1, "max": 1, "step": 0.1},),
                 "refiner_swap_method": (["joint", "separate", "vae"],),
-                "positive": ("STRING", {"default":"", "placeholder": "Positive", "multiline": True}),
-                "negative": ("STRING", {"default":"", "placeholder": "Negative", "multiline": True}),
+                "positive_prompt": ("STRING", {"forceInput": True}),
+                "negative_prompt": ("STRING", {"forceInput": True}),
                 "resolution": (resolution_strings, {"default": "1024 x 1024"}),
                 "empty_latent_width": ("INT", {"default": 1024, "min": 64, "max": 2048, "step": 8},),
                 "empty_latent_height": ("INT", {"default": 1024, "min": 64, "max": 2048, "step": 8},),
@@ -161,12 +161,11 @@ class FooocusLoader:
             for key, value in kwargs.items()
             if key not in ("empty_latent_width", "empty_latent_height")
         }
-        positive_prompt = kwargs["positive"]
-        negative_prompt = kwargs["negative"]
+        positive_prompt = kwargs["positive_prompt"]
         pipe.update(
             {
                 "positive_prompt": positive_prompt,
-                "negative_prompt": negative_prompt,
+                "negative_prompt": kwargs["negative_prompt"],
                 "latent_width": empty_latent_width,
                 "latent_height": empty_latent_height,
                 "optional_lora_stack": optional_lora_stack,
@@ -465,8 +464,6 @@ class FooocusPreKSampler:
                         negative_basic_workloads = negative_basic_workloads + n
                 else:
                     positive_basic_workloads.append(task_prompt)
-
-                # Always use independent workload for negative.
                 negative_basic_workloads.append(task_negative_prompt)
 
                 positive_basic_workloads = positive_basic_workloads + task_extra_positive_prompts
@@ -756,7 +753,6 @@ class FooocusKsampler:
                 all_imgs.extend(imgs)
             except Exception as e:
                 print('task stopped')
-                raise e
 
         new_pipe = {
             **pipe,
@@ -766,7 +762,7 @@ class FooocusKsampler:
 
         # Combine the processed images back into a single tensor
         base_image = torch.stack([tensor.squeeze() for tensor in all_imgs])
-
+        
         if image_output in ("Save", "Hide/Save"):
             saveimage = SaveImage()
             results = saveimage.save_images(
@@ -779,7 +775,7 @@ class FooocusKsampler:
 
         if image_output == "Hide":
             return {"ui": {"value": list()}, "result": (new_pipe, base_image)}
-
+        
         results["result"] = new_pipe, base_image
         return results
 
@@ -790,6 +786,7 @@ class FooocusUpscale:
         return {
             "required": {
                 "pipe": ("PIPE_LINE",),
+                "image": ("IMAGE",),
                 "upscale": ([1.5, 2.0], {"default": 1.5, }),
                 "steps": ("INT", {"default": 18, "min": 1, "max": 100}),
                 "denoise": ("FLOAT", {"default": 0.382, "min": 0.00, "max": 1.00, "step": 0.001},),
@@ -801,9 +798,6 @@ class FooocusUpscale:
                 "prompt": "PROMPT",
                 "extra_pnginfo": "EXTRA_PNGINFO",
             },
-            "optional": {
-                "image": ("IMAGE",),
-            },
         }
     RETURN_TYPES = ("PIPE_LINE", "IMAGE")
     RETURN_NAMES = ("pipe", "image")
@@ -811,13 +805,9 @@ class FooocusUpscale:
     FUNCTION = "FooocusUpscale"
     CATEGORY = "Fooocus"
 
-    def FooocusUpscale(self, pipe, upscale, denoise, fast, steps, image_output, save_prefix, image=None, prompt=None, extra_pnginfo=None):
+    def FooocusUpscale(self, pipe, image, upscale, denoise, fast, steps, image_output, save_prefix, prompt=None, extra_pnginfo=None):
         all_imgs = []
-        if "images" in pipe:
-            images = pipe["images"]
-        else:
-            images = image
-        all_steps = steps * len(images)
+        all_steps = steps * len(image)
         pbar = comfy.utils.ProgressBar(all_steps)
         log_node_info('Downloading upscale models ...')
         modules.config.downloading_upscale_model()
@@ -826,7 +816,7 @@ class FooocusUpscale:
             preview_bytes = None
             pbar.update_absolute(step + 1, total_steps, preview_bytes)
 
-        for image_id, img in enumerate(images):
+        for image_id, img in enumerate(image):
             print(f'upscale image #{image_id+1} ...')
             img = img.unsqueeze(0)
             img = img[0].numpy()
@@ -889,7 +879,7 @@ class FooocusUpscale:
             height = H * 8
             print(f'Final resolution is {str((height, width))}.')
 
-            if pipe['tasks'] is not None and len(pipe['tasks']) == len(images):
+            if pipe['tasks'] is not None and len(pipe['tasks']) == len(image):
                 task = pipe["tasks"][image_id]
                 positive_cond, negative_cond = task['c'], task['uc']
             else:
