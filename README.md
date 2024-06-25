@@ -32,8 +32,10 @@ use_model_cache = True
 - [x] Fooocus ImagePrompt&FaceSwap
 - [x] Fooocus Canny&CPDS
 - [x] Fooocus Styles&PromptExpansion
-- [x] Fooocus DeftailerFix
+- [X] Fooocus DeftailerFix
+- [ ] Fix / debug DeftailerFix
 - [X] Fooocus Styles weight
+- [ ] Add standard ControlNet support (depth, openpose // using Fooocus ControlNet or standard controlNet // R&D)
 
 # Workflows
 
